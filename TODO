@@ -1,0 +1,4 @@
+TODO
+导入urdf之后有些关节不能拖动
+robot_2不能poscontrol可以velcontrol
+robot_1可以velcontrol和poscontrol
