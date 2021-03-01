@@ -14,7 +14,7 @@ p.resetDebugVisualizerCamera(cameraDistance=1.30, cameraYaw=50.0, cameraPitch=-2
 
 use_1 = 1
 use_2 = 1
-useConstraint = 1
+useConstraint = 0
 
 robotPos_1 = [0, 0.00302, 0.27853]
 robotPos_2 = [0, 0, 0]
