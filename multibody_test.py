@@ -14,7 +14,7 @@ p.resetDebugVisualizerCamera(cameraDistance=1.30, cameraYaw=50.0, cameraPitch=-2
 
 use_1 = 1
 use_2 = 1
-useConstraint = 0
+useConstraint = 1
 
 robotPos_1 = [0, 0.00302, 0.27853]
 robotPos_2 = [0, 0, 0]
@@ -110,46 +110,54 @@ if use_1 and use_2 and useConstraint:
     constraintNum = 10
     for i in range(constraintNum):
         p.createConstraint(parentBodyUniqueId=robot_1,
-                        parentLinkIndex=linkNameToID_1["L_L_1"],
-                        childBodyUniqueId=robot_2,
-                        childLinkIndex=linkNameToID_2['L_L_2'],
-                        jointType=p.JOINT_POINT2POINT,
-                        jointAxis=[0, 0, 0],
-                        parentFramePosition=[0.055, 0, -0.005 + (0.01 / constraintNum) * i],
-                        childFramePosition=[0.03706, 0.00578, -0.005 + (0.01 / constraintNum) * i]
-                        )
+                           parentLinkIndex=linkNameToID_1["L_L_1"],
+                           childBodyUniqueId=robot_2,
+                           childLinkIndex=linkNameToID_2['L_L_2'],
+                           jointType=p.JOINT_POINT2POINT,
+                           jointAxis=[0, 0, 0],
+                           parentFramePosition=[
+                               0.055, 0, -0.005 + (0.01 / constraintNum) * i],
+                           childFramePosition=[
+                               0.03706, 0.00578, -0.005 + (0.01 / constraintNum) * i]
+                           )
     for i in range(constraintNum):
         p.createConstraint(parentBodyUniqueId=robot_1,
-                        parentLinkIndex=linkNameToID_1["L_L_3"],
-                        childBodyUniqueId=robot_2,
-                        childLinkIndex=linkNameToID_2["L_L_2"],
-                        jointType=p.JOINT_POINT2POINT,
-                        jointAxis=[0, 0, 0],
-                        parentFramePosition=[0.06, 0, -0.005 + (0.01 / constraintNum) * i],
-                        childFramePosition=[0.07595, -0.03311, -0.005 + (0.01 / constraintNum) * i, ]
-                        )
+                           parentLinkIndex=linkNameToID_1["L_L_3"],
+                           childBodyUniqueId=robot_2,
+                           childLinkIndex=linkNameToID_2["L_L_2"],
+                           jointType=p.JOINT_POINT2POINT,
+                           jointAxis=[0, 0, 0],
+                           parentFramePosition=[
+                               0.06, 0, -0.005 + (0.01 / constraintNum) * i],
+                           childFramePosition=[
+                               0.07595, -0.03311, -0.005 + (0.01 / constraintNum) * i, ]
+                           )
     for i in range(constraintNum):
         p.createConstraint(parentBodyUniqueId=robot_1,
-                        parentLinkIndex=linkNameToID_1["L_R_1"],
-                        childBodyUniqueId=robot_2,
-                        childLinkIndex=linkNameToID_2['L_R_2'],
-                        jointType=p.JOINT_POINT2POINT,
-                        jointAxis=[0, 0, 0],
-                        parentFramePosition=[0.055, 0, -0.005 + (0.01 / constraintNum) * i],
-                        childFramePosition=[0.03706,  -0.00578, -0.005 + (0.01 / constraintNum) * i]
-                        )
+                           parentLinkIndex=linkNameToID_1["L_R_1"],
+                           childBodyUniqueId=robot_2,
+                           childLinkIndex=linkNameToID_2['L_R_2'],
+                           jointType=p.JOINT_POINT2POINT,
+                           jointAxis=[0, 0, 0],
+                           parentFramePosition=[
+                               0.055, 0, -0.005 + (0.01 / constraintNum) * i],
+                           childFramePosition=[
+                               0.03706,  -0.00578, -0.005 + (0.01 / constraintNum) * i]
+                           )
     for i in range(constraintNum):
         p.createConstraint(parentBodyUniqueId=robot_1,
-                        parentLinkIndex=linkNameToID_1["L_R_3"],
-                        childBodyUniqueId=robot_2,
-                        childLinkIndex=linkNameToID_2["L_R_2"],
-                        jointType=p.JOINT_POINT2POINT,
-                        jointAxis=[0, 0, 0],
-                        parentFramePosition=[0.06, 0, 0.005 - (0.01 / constraintNum) * i],
-                        childFramePosition=[0.07595, 0.03311, -0.005 + (0.01 / constraintNum) * i]
-                        )
+                           parentLinkIndex=linkNameToID_1["L_R_3"],
+                           childBodyUniqueId=robot_2,
+                           childLinkIndex=linkNameToID_2["L_R_2"],
+                           jointType=p.JOINT_POINT2POINT,
+                           jointAxis=[0, 0, 0],
+                           parentFramePosition=[
+                               0.06, 0, 0.005 - (0.01 / constraintNum) * i],
+                           childFramePosition=[
+                               0.07595, 0.03311, -0.005 + (0.01 / constraintNum) * i]
+                           )
 
-p.setGravity(0, 0, 0)
+p.setGravity(0, 0, -10)
 
 step_time = 0
 motorDebugParam = []
@@ -165,21 +173,13 @@ while True:
     for i in range(len(motorDebugParam)):
         motorsParamRead.append(p.readUserDebugParameter(motorDebugParam[i]))
     # print(motorsParamRead)
-    # p.setJointMotorControl2(robot_2, jointNameToID_2['J_L_0'], p.VELOCITY_CONTROL,
-                            # targetVelocity=motorsParamRead[0])
-    # p.setJointMotorControl2(robot_2, jointNameToID_2['J_L_1'], p.VELOCITY_CONTROL,
-                            # targetVelocity=motorsParamRead[1])
-    # p.setJointMotorControl2(robot_2, jointNameToID_2['J_L_2'], p.VELOCITY_CONTROL,
-                            # targetVelocity=motorsParamRead[2])
-    # p.setJointMotorControl2(robot_1, jointNameToID_1['J_R_3'], p.VELOCITY_CONTROL,
-                            # targetVelocity=motorsParamRead[3])
-    # p.setJointMotorControl2(robot_2, jointNameToID_2['J_L_3'], p.VELOCITY_CONTROL,
-    #                         targetVelocity=motorsParamRead[3])
-    # p.setJointMotorControl2(robot_1, jointNameToID_2['J_0_L'], p.VELOCITY_CONTROL,
-    #                         targetVelocity=motorsParamRead[4], force=100)
-    # p.setJointMotorControl2(robot_1, jointNameToID_2['J_1_L'], p.VELOCITY_CONTROL,
-    #                         targetVelocity=motorsParamRead[5], force=100)
-    # print(motorsParamRead[5])
+    if motorsParamRead[6] < 0:
+        for joint_name in jointNameToID_1:
+            p.resetJointState(robot_1, jointNameToID_1[joint_name], 0)
+        for joint_name in jointNameToID_2:
+            p.resetJointState(robot_2, jointNameToID_2[joint_name], 0)
+    p.setJointMotorControl2(robot_2, jointNameToID_2['J_L_0'], p.VELOCITY_CONTROL,
+        targetVelocity=motorsParamRead[0])
 
     p.stepSimulation()
     time.sleep(0.01)
