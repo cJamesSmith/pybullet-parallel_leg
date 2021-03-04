@@ -18,21 +18,17 @@ useConstraint = 1
 
 robotPos_1 = [0, 0.00302, 0.27853]
 robotPos_2 = [0, 0, 0]
-robotScale = 1
 jointNameToID_1 = {}
 linkNameToID_1 = {}
 revoluteID_1 = []
 jointNameToID_2 = {}
 linkNameToID_2 = {}
 revoluteID_2 = []
-angle = 0
 
 if use_1:
     robot_1 = p.loadURDF(r'leg-1/urdf/leg-1.urdf',
                          robotPos_1,
-                         # p.getQuaternionFromEuler([0, 0, 0]),
                          useFixedBase=0,
-                         # globalScaling=robotScale
                          )
     for j in range(p.getNumJoints(robot_1)):
         info = p.getJointInfo(robot_1, j)
@@ -64,9 +60,7 @@ if use_1:
 if use_2:
     robot_2 = p.loadURDF(r'leg-2/urdf/leg-2.urdf',
                          robotPos_2,
-                         # p.getQuaternionFromEuler([0, 0, 0]),
                          useFixedBase=1,
-                         # globalScaling=robotScale
                          )
 
     for j in range(p.getNumJoints(robot_2)):
