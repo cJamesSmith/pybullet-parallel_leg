@@ -1,7 +1,7 @@
-import pybullet as p
 import time
+
+import pybullet as p
 import pybullet_data
-import math
 
 physicsClient = p.connect(p.GUI)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -16,7 +16,7 @@ use_1 = 1
 use_2 = 1
 useConstraint = 1
 
-robotPos_1 = [0, 0.00302, 0.27853]
+robotPos_1 = [0, 0.00302, 0.37853]
 robotPos_2 = [0, 0, 0]
 jointNameToID_1 = {}
 linkNameToID_1 = {}
@@ -28,7 +28,7 @@ revoluteID_2 = []
 if use_1:
     robot_1 = p.loadURDF(r'leg-1/urdf/leg-1.urdf',
                          robotPos_1,
-                         useFixedBase=0,
+                         useFixedBase=1,
                          )
     for j in range(p.getNumJoints(robot_1)):
         info = p.getJointInfo(robot_1, j)
@@ -60,7 +60,7 @@ if use_1:
 if use_2:
     robot_2 = p.loadURDF(r'leg-2/urdf/leg-2.urdf',
                          robotPos_2,
-                         useFixedBase=1,
+                         useFixedBase=0,
                          )
 
     for j in range(p.getNumJoints(robot_2)):
@@ -99,7 +99,6 @@ if use_1 and use_2:
             p.setCollisionFilterPair(robot_1, robot_2, i, j, 0)
     pass
 
-
 if use_1 and use_2 and useConstraint:
     constraintNum = 10
     for i in range(constraintNum):
@@ -136,7 +135,7 @@ if use_1 and use_2 and useConstraint:
                            parentFramePosition=[
                                0.055, 0, -0.005 + (0.01 / constraintNum) * i],
                            childFramePosition=[
-                               0.03706,  -0.00578, -0.005 + (0.01 / constraintNum) * i]
+                               0.03706, -0.00578, -0.005 + (0.01 / constraintNum) * i]
                            )
     for i in range(constraintNum):
         p.createConstraint(parentBodyUniqueId=robot_1,
@@ -172,8 +171,12 @@ while True:
             p.resetJointState(robot_1, jointNameToID_1[joint_name], 0)
         for joint_name in jointNameToID_2:
             p.resetJointState(robot_2, jointNameToID_2[joint_name], 0)
-    p.setJointMotorControl2(robot_2, jointNameToID_2['J_L_0'], p.VELOCITY_CONTROL,
-        targetVelocity=motorsParamRead[0])
+    p.setJointMotorControl2(robot_2,
+                            jointNameToID_2['J_L_0'],
+                            p.VELOCITY_CONTROL,
+                            targetVelocity=0
+                            # motorsParamRead[0]
+                            )
 
     p.stepSimulation()
     time.sleep(0.01)
