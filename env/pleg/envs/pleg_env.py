@@ -8,12 +8,12 @@ from gym import spaces
 from gym.utils import seeding
 
 
-class ParallelEnv(gym.Env):
+class PlegEnv(gym.Env):
 
     def __init__(self, render=False):
-        self.robotPos_1 = [0, 0.00302, 0.27853]
-        self.robotPos_2 = [0, 0, 0]
-        self.robotPos_3 = [0, 0.06, 0]
+        self.robotPos_1 = [0, 0, 0.35]
+        self.robotPos_2 = [0, -0.07, 0]
+        self.robotPos_3 = [0, 0.07, 0]
         self.jointNameToID_1 = {}
         self.linkNameToID_1 = {}
         self.revoluteID_1 = []
@@ -29,10 +29,14 @@ class ParallelEnv(gym.Env):
         self.time_step = 0.01
 
         action_dim = 12
-        self._action_bound = math.pi
+        self._action_bound = 1
         action_high = np.array([self._action_bound] * action_dim)
         self.action_space = spaces.Box(-action_high, action_high)
-        self.observation_space = spaces.Box(low=-math.pi, high=math.pi, shape=(1, 33))  # TODO
+
+        observation_dim = 36
+        self._observation_bound = math.pi
+        observation_high = np.array([self._observation_bound] * observation_dim)
+        self.observation_space = spaces.Box(-observation_high, observation_high)
 
         if render:
             self.physicsClient = p.connect(p.GUI)
@@ -47,7 +51,7 @@ class ParallelEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action):
+    def step(self, action):
         self._assign_throttle(action)
         p.stepSimulation()
         self._observation = self._compute_observation()
@@ -58,7 +62,8 @@ class ParallelEnv(gym.Env):
 
         return np.array(self._observation), reward, done, {}
 
-    def _reset(self):
+    def reset(self):
+        self._envStepCounter = 0
         p.resetSimulation()
         p.setGravity(0, 0, -10)  # m/s^2
         p.setTimeStep(self.time_step)  # sec
@@ -71,66 +76,92 @@ class ParallelEnv(gym.Env):
         return np.array(self._observation)
 
     def _assign_throttle(self, action):
+        action = action * math.pi
+        print('action', action)
         p.setJointMotorControl2(bodyUniqueId=self.robot_1,
-                                jointIndex=self.jointNameToID_1['L_J_0_R'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[0])
+                                jointIndex=self.jointNameToID_1['L_R_J_0'],
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[0],
+                                # maxVelocity=2
+                                )
         p.setJointMotorControl2(bodyUniqueId=self.robot_1,
-                                jointIndex=self.jointNameToID_1['L_J_1_R'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[1])
+                                jointIndex=self.jointNameToID_1['L_R_J_1'],
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[1],
+                                # maxVelocity=2
+                                )
         p.setJointMotorControl2(bodyUniqueId=self.robot_1,
-                                jointIndex=self.jointNameToID_1['L_J_2_R'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[2])
+                                jointIndex=self.jointNameToID_1['L_R_J_2'],
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[2],
+                                # maxVelocity=2
+                                )
         p.setJointMotorControl2(bodyUniqueId=self.robot_1,
-                                jointIndex=self.jointNameToID_1['L_J_1_L'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[3])
+                                jointIndex=self.jointNameToID_1['L_L_J_1'],
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[3],
+                                # maxVelocity=2
+                                )
         p.setJointMotorControl2(bodyUniqueId=self.robot_1,
-                                jointIndex=self.jointNameToID_1['L_J_2_L'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[4])
+                                jointIndex=self.jointNameToID_1['L_L_J_2'],
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[4],
+                                # maxVelocity=2
+                                )
         p.setJointMotorControl2(bodyUniqueId=self.robot_1,
-                                jointIndex=self.jointNameToID_1['R_J_0_R'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[5])
+                                jointIndex=self.jointNameToID_1['R_R_J_0'],
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[5],
+                                # maxVelocity=2
+                                )
         p.setJointMotorControl2(bodyUniqueId=self.robot_1,
-                                jointIndex=self.jointNameToID_1['R_J_1_R'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[7])
+                                jointIndex=self.jointNameToID_1['R_R_J_1'],
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[7],
+                                # maxVelocity=2
+                                )
         p.setJointMotorControl2(bodyUniqueId=self.robot_1,
-                                jointIndex=self.jointNameToID_1['R_J_2_R'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[8])
+                                jointIndex=self.jointNameToID_1['R_R_J_2'],
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[8],
+                                # maxVelocity=2
+                                )
         p.setJointMotorControl2(bodyUniqueId=self.robot_1,
-                                jointIndex=self.jointNameToID_1['R_J_1_L'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[9])
+                                jointIndex=self.jointNameToID_1['R_L_J_1'],
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[9],
+                                # maxVelocity=2
+                                )
         p.setJointMotorControl2(bodyUniqueId=self.robot_1,
-                                jointIndex=self.jointNameToID_1['R_J_2_L'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[10])
+                                jointIndex=self.jointNameToID_1['R_L_J_2'],
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[10],
+                                # maxVelocity=2
+                                )
         p.setJointMotorControl2(bodyUniqueId=self.robot_2,
                                 jointIndex=self.jointNameToID_2['J_R_0'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[6])
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[6],
+                                # maxVelocity=2
+                                )
         p.setJointMotorControl2(bodyUniqueId=self.robot_3,
-                                jointIndex=self.jointNameToID_3['J_R_0'],
-                                controlMode=p.VELOCITY_CONTROL,
-                                targetVelocity=action[11])
+                                jointIndex=self.jointNameToID_3['J_L_0'],
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=action[11],
+                                # maxVelocity=2
+                                )
 
     def _compute_observation(self):
-        states = [p.getJointState(self.robot_1, self.jointNameToID_1['L_J_R_0']),
-                  p.getJointState(self.robot_1, self.jointNameToID_1['L_J_R_1']),
-                  p.getJointState(self.robot_1, self.jointNameToID_1['L_J_R_2']),
-                  p.getJointState(self.robot_1, self.jointNameToID_1['L_J_L_1']),
-                  p.getJointState(self.robot_1, self.jointNameToID_1['L_J_L_2']),
-                  p.getJointState(self.robot_1, self.jointNameToID_1['R_J_R_0']),
-                  p.getJointState(self.robot_1, self.jointNameToID_1['R_J_R_1']),
-                  p.getJointState(self.robot_1, self.jointNameToID_1['R_J_R_2']),
-                  p.getJointState(self.robot_1, self.jointNameToID_1['R_J_L_1']),
-                  p.getJointState(self.robot_1, self.jointNameToID_1['R_J_L_2']),
+        states = [p.getJointState(self.robot_1, self.jointNameToID_1['L_R_J_0']),
+                  p.getJointState(self.robot_1, self.jointNameToID_1['L_R_J_1']),
+                  p.getJointState(self.robot_1, self.jointNameToID_1['L_R_J_2']),
+                  p.getJointState(self.robot_1, self.jointNameToID_1['L_L_J_1']),
+                  p.getJointState(self.robot_1, self.jointNameToID_1['L_L_J_2']),
+                  p.getJointState(self.robot_1, self.jointNameToID_1['R_R_J_0']),
+                  p.getJointState(self.robot_1, self.jointNameToID_1['R_R_J_1']),
+                  p.getJointState(self.robot_1, self.jointNameToID_1['R_R_J_2']),
+                  p.getJointState(self.robot_1, self.jointNameToID_1['R_L_J_1']),
+                  p.getJointState(self.robot_1, self.jointNameToID_1['R_L_J_2']),
                   p.getJointState(self.robot_2, self.jointNameToID_2['J_R_0']),
                   p.getJointState(self.robot_3, self.jointNameToID_3['J_R_0'])]
         obs = []
@@ -138,9 +169,16 @@ class ParallelEnv(gym.Env):
             obs.append(state[0])
             obs.append(state[1])  # 0 for pos, 1 for vel
         cube_pos, cube_orn = p.getBasePositionAndOrientation(self.robot_1)
+        cube_euler = p.getEulerFromQuaternion(cube_orn)
+        print('cube_euler', cube_euler)
+        print('cube_pos', cube_pos)
         linear, angular = p.getBaseVelocity(self.robot_1)
-        obs.append(cube_pos)
-        obs.append(cube_orn)
+        obs.append(cube_pos[0])
+        obs.append(cube_pos[1])
+        obs.append(cube_pos[2])
+        obs.append(cube_euler[0])
+        obs.append(cube_euler[1])
+        obs.append(cube_euler[2])
         obs.append(linear[0])
         obs.append(linear[1])
         obs.append(linear[2])
@@ -150,24 +188,35 @@ class ParallelEnv(gym.Env):
         return obs
 
     def _compute_reward(self):
-        reward = self.x + self._envStepCounter * self.time_step
+        robot1_pos, robot1_orn = p.getBasePositionAndOrientation(self.robot_1)
+        robot1_euler = p.getEulerFromQuaternion(robot1_orn)
+        robot2_pos, robot2_orn = p.getBasePositionAndOrientation(self.robot_2)
+        robot2_euler = p.getEulerFromQuaternion(robot2_orn)
+        robot3_pos, robot3_orn = p.getBasePositionAndOrientation(self.robot_3)
+        robot3_euler = p.getEulerFromQuaternion(robot3_orn)
+        reward = robot1_pos[0] * 10 + robot2_pos[0] * 10 + robot3_pos[0] * 10 + robot2_pos[2] * 10 + robot3_pos[2] * 10 + self._envStepCounter * self.time_step
+        print('reward0', reward)
+        # if math.fabs(robot_pos[2]) < 0.2:
+        #     reward /= 2
+        # print('reward1', reward)
+        return reward
 
     def _compute_done(self):
-        robot_pos, _ = p.getBasePositionAndOrientation(self.botId)
-        return math.fabs(robot_pos[2]) < 0.2 or self._envStepCounter >= 3000 or math.fabs(robot_pos[1]) > 0.06
+        robot_pos, _ = p.getBasePositionAndOrientation(self.robot_1)
+        return self._envStepCounter >= 1500 or math.fabs(robot_pos[2]) < 0.25
 
     def _render(self, mode='human', close=False):
         pass
 
     def _load_robot_1(self):
 
-        robot = p.loadURDF(r'env/pleg/envs/leg-1/urdf/leg-1.urdf',
+        robot = p.loadURDF(r'leg-1.SLDASM/urdf/leg-1.SLDASM.urdf',
                            self.robotPos_1,
                            useFixedBase=0,
                            )
         for j in range(p.getNumJoints(robot)):
             info = p.getJointInfo(robot, j)
-            print(info)
+            # print(info)
             joint_name = info[1].decode('utf8')
             joint_type = info[2]
             if joint_type == p.JOINT_REVOLUTE:
@@ -177,7 +226,7 @@ class ParallelEnv(gym.Env):
         return robot
 
     def _load_robot_2(self):
-        robot = p.loadURDF(r'leg-2/urdf/leg-2.urdf',
+        robot = p.loadURDF(r'leg-2.SLDASM/urdf/leg-2.SLDASM.urdf',
                            self.robotPos_2,
                            useFixedBase=0,
                            )
@@ -193,7 +242,7 @@ class ParallelEnv(gym.Env):
         return robot
 
     def _load_robot_3(self):
-        robot = p.loadURDF(r'leg-2/urdf/leg-2.urdf',
+        robot = p.loadURDF(r'leg-2.SLDASM/urdf/leg-2.SLDASM.urdf',
                            self.robotPos_3,
                            useFixedBase=0,
                            )
@@ -224,19 +273,19 @@ class ParallelEnv(gym.Env):
         # constraint between robot_1 and robot_2
         for i in range(constraintNum):
             p.createConstraint(parentBodyUniqueId=self.robot_1,
-                               parentLinkIndex=self.linkNameToID_1["L_L_1_L"],
+                               parentLinkIndex=self.linkNameToID_1["L_L_L_1"],
                                childBodyUniqueId=self.robot_2,
                                childLinkIndex=self.linkNameToID_2['L_L_2'],
                                jointType=p.JOINT_POINT2POINT,
                                jointAxis=[0, 0, 0],
                                parentFramePosition=[
-                                   -0.005 + (0.01 / constraintNum) * i, -0.055, 0],
+                                   -0.005 + (0.01 / constraintNum) * i, -0.06, 0],
                                childFramePosition=[
-                                   0.03706, 0.00578, 0.005 - (0.01 / constraintNum) * i]
+                                   -0.00722, -0.005 + (0.01 / constraintNum) * i, 0.05211]
                                )
         for i in range(constraintNum):
             p.createConstraint(parentBodyUniqueId=self.robot_1,
-                               parentLinkIndex=self.linkNameToID_1["L_L_3_L"],
+                               parentLinkIndex=self.linkNameToID_1["L_L_L_3"],
                                childBodyUniqueId=self.robot_2,
                                childLinkIndex=self.linkNameToID_2["L_L_2"],
                                jointType=p.JOINT_POINT2POINT,
@@ -244,23 +293,23 @@ class ParallelEnv(gym.Env):
                                parentFramePosition=[
                                    -0.005 + (0.01 / constraintNum) * i, -0.055, 0],
                                childFramePosition=[
-                                   0.07595, -0.03311, 0.005 - (0.01 / constraintNum) * i, ]
+                                   0.04278, -0.005 + (0.01 / constraintNum) * i, 0.102113]
                                )
         for i in range(constraintNum):
             p.createConstraint(parentBodyUniqueId=self.robot_1,
-                               parentLinkIndex=self.linkNameToID_1["L_L_1_R"],
+                               parentLinkIndex=self.linkNameToID_1["L_R_L_1"],
                                childBodyUniqueId=self.robot_2,
                                childLinkIndex=self.linkNameToID_2['L_R_2'],
                                jointType=p.JOINT_POINT2POINT,
                                jointAxis=[0, 0, 0],
                                parentFramePosition=[
-                                   -0.005 + (0.01 / constraintNum) * i, -0.055, 0],
+                                   -0.005 + (0.01 / constraintNum) * i, -0.06, 0],
                                childFramePosition=[
-                                   0.03706, -0.00578, -0.005 + (0.01 / constraintNum) * i]
+                                   -0.005 + (0.01 / constraintNum) * i, 0.05211, -0.00722]
                                )
         for i in range(constraintNum):
             p.createConstraint(parentBodyUniqueId=self.robot_1,
-                               parentLinkIndex=self.linkNameToID_1["L_L_3_R"],
+                               parentLinkIndex=self.linkNameToID_1["L_R_L_3"],
                                childBodyUniqueId=self.robot_2,
                                childLinkIndex=self.linkNameToID_2["L_R_2"],
                                jointType=p.JOINT_POINT2POINT,
@@ -268,25 +317,25 @@ class ParallelEnv(gym.Env):
                                parentFramePosition=[
                                    -0.005 + (0.01 / constraintNum) * i, -0.055, 0],
                                childFramePosition=[
-                                   0.07595, 0.03311, -0.005 + (0.01 / constraintNum) * i]
+                                   -0.005 + (0.01 / constraintNum) * i, 0.102113, 0.04278]
                                )
 
         # constraint between robot_1 and robot_3
         for i in range(constraintNum):
             p.createConstraint(parentBodyUniqueId=self.robot_1,
-                               parentLinkIndex=self.linkNameToID_1["R_L_1_L"],
+                               parentLinkIndex=self.linkNameToID_1["R_L_L_1"],
                                childBodyUniqueId=self.robot_3,
                                childLinkIndex=self.linkNameToID_3['L_L_2'],
                                jointType=p.JOINT_POINT2POINT,
                                jointAxis=[0, 0, 0],
                                parentFramePosition=[
-                                   -0.005 + (0.01 / constraintNum) * i, -0.055, 0],
+                                   -0.005 + (0.01 / constraintNum) * i, -0.06, 0],
                                childFramePosition=[
-                                   0.03706, 0.00578, 0.005 - (0.01 / constraintNum) * i]
+                                   -0.00722, -0.005 + (0.01 / constraintNum) * i, 0.05211]
                                )
         for i in range(constraintNum):
             p.createConstraint(parentBodyUniqueId=self.robot_1,
-                               parentLinkIndex=self.linkNameToID_1["R_L_3_L"],
+                               parentLinkIndex=self.linkNameToID_1["R_L_L_3"],
                                childBodyUniqueId=self.robot_3,
                                childLinkIndex=self.linkNameToID_3["L_L_2"],
                                jointType=p.JOINT_POINT2POINT,
@@ -294,23 +343,23 @@ class ParallelEnv(gym.Env):
                                parentFramePosition=[
                                    -0.005 + (0.01 / constraintNum) * i, -0.055, 0],
                                childFramePosition=[
-                                   0.07595, -0.03311, 0.005 - (0.01 / constraintNum) * i, ]
+                                   0.04278, -0.005 + (0.01 / constraintNum) * i, 0.102113]
                                )
         for i in range(constraintNum):
             p.createConstraint(parentBodyUniqueId=self.robot_1,
-                               parentLinkIndex=self.linkNameToID_1["R_L_1_R"],
+                               parentLinkIndex=self.linkNameToID_1["R_R_L_1"],
                                childBodyUniqueId=self.robot_3,
                                childLinkIndex=self.linkNameToID_3['L_R_2'],
                                jointType=p.JOINT_POINT2POINT,
                                jointAxis=[0, 0, 0],
                                parentFramePosition=[
-                                   -0.005 + (0.01 / constraintNum) * i, -0.055, 0],
+                                   -0.005 + (0.01 / constraintNum) * i, -0.06, 0],
                                childFramePosition=[
-                                   0.03706, -0.00578, -0.005 + (0.01 / constraintNum) * i]
+                                   -0.005 + (0.01 / constraintNum) * i, 0.05211, -0.00722]
                                )
         for i in range(constraintNum):
             p.createConstraint(parentBodyUniqueId=self.robot_1,
-                               parentLinkIndex=self.linkNameToID_1["R_L_3_R"],
+                               parentLinkIndex=self.linkNameToID_1["R_R_L_3"],
                                childBodyUniqueId=self.robot_3,
                                childLinkIndex=self.linkNameToID_3["L_R_2"],
                                jointType=p.JOINT_POINT2POINT,
@@ -318,6 +367,5 @@ class ParallelEnv(gym.Env):
                                parentFramePosition=[
                                    -0.005 + (0.01 / constraintNum) * i, -0.055, 0],
                                childFramePosition=[
-                                   0.07595, 0.03311, -0.005 + (0.01 / constraintNum) * i]
+                                   -0.005 + (0.01 / constraintNum) * i, 0.102113, 0.042785]
                                )
-
